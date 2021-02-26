@@ -13,5 +13,7 @@ namespace WebApplication1.DataAccess.Interfaces
         IQueryable<Blog> GetBlogs();
 
         void DeleteBlog(int id);
+
+        void UpdateBlog(Blog b);
     }
 }

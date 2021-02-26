@@ -12,6 +12,8 @@ using WebApplication1.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebApplication1.DataAccess.Interfaces;
+using WebApplication1.DataAccess.Repositories;
 
 namespace WebApplication1
 {
@@ -33,6 +35,11 @@ namespace WebApplication1
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(
                     Configuration.GetConnectionString("DefaultConnection")));
+
+
+            services.AddScoped<IBlogsRepository, BlogsRepository>(); 
+            //how you can register classes + interfaces which you have created with the IOC container
+
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();

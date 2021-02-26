@@ -24,17 +24,27 @@ namespace WebApplication1.DataAccess.Repositories
 
         public void DeleteBlog(int id)
         {
-            throw new NotImplementedException();
+           
+            _context.Blogs.Remove(GetBlog(id));
+            _context.SaveChanges();
         }
 
         public Blog GetBlog(int id)
         {
+           
             return _context.Blogs.SingleOrDefault(x => x.BlogId == id);
         }
 
         public IQueryable<Blog> GetBlogs()
         {
-            throw new NotImplementedException();
+            return _context.Blogs;
+        }
+
+        public void UpdateBlog(Blog b)
+        {
+            var originalBlog = GetBlog(b.BlogId);
+            originalBlog.Url = b.Url;
+            _context.SaveChanges();
         }
     }
 }
