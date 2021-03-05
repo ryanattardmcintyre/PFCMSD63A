@@ -16,7 +16,10 @@
                 @Html.DisplayNameFor(model => model.BlogId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Url)
+              Picture
+            </th>
+            <th>
+               Title
             </th>
             <th></th>
         </tr>
@@ -28,7 +31,11 @@
                 @Html.DisplayFor(modelItem => item.BlogId)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Url)
+               <img src="@item.Url" style="width:230px;height:150px" />
+
+            </td>
+            <td>
+                @item.Title
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |

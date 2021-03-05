@@ -13,6 +13,7 @@ namespace WebApplication1.Models.Domain
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BlogId { get; set; }
         public string Url { get; set; }
+        public string Title { get; set; }
 
         public virtual List<Post> Posts { get; set; }
     }
