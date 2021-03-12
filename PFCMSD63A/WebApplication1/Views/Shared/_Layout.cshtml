@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@inject WebApplication1.DataAccess.Interfaces.ICacheRepository MyCacheService
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -19,19 +20,28 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        @foreach (WebApplication1.Models.Menu m in MyCacheService.GetMenus())
+                        {
+                            @if (User.Identity.Name != null)
+                            {
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Blogs" asp-action="Index">Blogs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Blogs" asp-action="Create">Create a Blog</a>
-                        </li>
+                                if (m.Url.Contains("Admin"))
+                                {
+                                    if (User.IsInRole("ADMIN"))
+                                    {
+                                        <li class="nav-item">
+                                            <a class="nav-link text-dark" href="@m.Url">@m.Title</a>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" href="@m.Url">@m.Title</a>
+                                    </li>
+                                }
+                            }
+                        }
                     </ul>
                 </div>
             </div>
