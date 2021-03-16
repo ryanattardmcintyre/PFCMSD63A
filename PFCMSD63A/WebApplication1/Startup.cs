@@ -37,7 +37,7 @@ namespace WebApplication1
                     Configuration.GetConnectionString("DefaultConnection")));
 
 
-            services.AddScoped<IBlogsRepository, BlogsRepository>();
+            services.AddScoped<IBlogsRepository, BlogsFirestoreRepository>();
             services.AddScoped<ICacheRepository, CacheRepository>();
 
             //how you can register classes + interfaces which you have created with the IOC container
