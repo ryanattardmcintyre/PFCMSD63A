@@ -27,11 +27,12 @@ namespace WebApplication1.DataAccess.Repositories
 
         public void PublishMessage(Blog b, string email, string classType)
         {
-            TopicName topicName = TopicName.FromProjectTopic(projectId, "pfc2021topicra");
+            TopicName topicName = TopicName.FromProjectTopic(projectId, "pfc2021topicra"); //topic = queue
 
-            Task<PublisherClient> t = PublisherClient.CreateAsync(topicName);
+            Task<PublisherClient> t = PublisherClient.CreateAsync(topicName); 
             t.Wait();
-            PublisherClient publisher = t.Result  ;
+            PublisherClient publisher = t.Result  ; //after making an asynchronous call to get all the info i need to be able to make a 
+                                                    //a request to use the queue/topic
 
             var myOnTheFlyObject = new { Email = email, Blog = b }; //anonymous object
             string myOnTheflyObject_serialized = JsonConvert.SerializeObject(myOnTheFlyObject);
@@ -47,7 +48,7 @@ namespace WebApplication1.DataAccess.Repositories
                         }
             };
 
-            Task<string> t2 = publisher.PublishAsync(pubsubMessage);
+            Task<string> t2 = publisher.PublishAsync(pubsubMessage); //initiating an asynchronous call to store msg in topic
             t2.Wait();
             string message = t2.Result ; //reference no/ id //log id date and time it was published
             
@@ -66,9 +67,9 @@ namespace WebApplication1.DataAccess.Repositories
             //        subscriptionid = "pfc2021subscriptionra4";
             //        break;
             //}
+            
 
-
-            SubscriptionName subscriptionName = SubscriptionName.FromProjectSubscription(projectId, "pfc2021subscriptionra3");
+            SubscriptionName subscriptionName = SubscriptionName.FromProjectSubscription(projectId, "pfc2021subscriptionra2");
             SubscriberServiceApiClient subscriberClient = SubscriberServiceApiClient.Create();
             int messageCount = 0;string text ="";
             try
@@ -77,15 +78,17 @@ namespace WebApplication1.DataAccess.Repositories
                 // allowing an immediate response if there are no messages.
                 PullResponse response = subscriberClient.Pull(subscriptionName, returnImmediately: true, maxMessages: 1);
                 // Print out each received message.
-                
-                var msg = response.ReceivedMessages.FirstOrDefault();
-                if(msg != null)
+                if (response.ReceivedMessages.Count > 0)
                 {
-                    text = msg.Message.Data.ToStringUtf8();
-                }
+                    var msg = response.ReceivedMessages.FirstOrDefault();
+                    if (msg != null)
+                    { 
+                        text = msg.Message.Data.ToStringUtf8();
+                    }
 
-                //  subscriberClient.Acknowledge(subscriptionName, response.ReceivedMessages.Select(msg => msg.AckId)); //this acknowledges more than 1 message 
-                subscriberClient.Acknowledge(subscriptionName, new List<string>() {msg.AckId });
+                    //  subscriberClient.Acknowledge(subscriptionName, response.ReceivedMessages.Select(msg => msg.AckId)); //this acknowledges more than 1 message 
+                    subscriberClient.Acknowledge(subscriptionName, new List<string>() { msg.AckId });
+                }
             }
             catch (RpcException ex) when (ex.Status.StatusCode == StatusCode.Unavailable)
             {

@@ -37,8 +37,11 @@ namespace WebApplication1
                     Configuration.GetConnectionString("DefaultConnection")));
 
 
+            //these 3 lines here, they basically specify to asp.net core what the dependency injector should follow
+            //in order to create the required instances
             services.AddScoped<IBlogsRepository, BlogsFirestoreRepository>();
             services.AddScoped<ICacheRepository, CacheRepository>();
+            services.AddScoped<IPubSubRepository, PubSubRepository>();
 
             //how you can register classes + interfaces which you have created with the IOC container
 

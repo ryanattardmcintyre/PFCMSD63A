@@ -15,10 +15,12 @@ namespace WebApplication1.Controllers
     {
         private readonly IBlogsRepository _blogsRepo;
         private readonly IConfiguration _config;
-        public BlogsController(IBlogsRepository blogsRepo, IConfiguration config)
+        private readonly IPubSubRepository _pubsubRepo;
+        public BlogsController(IBlogsRepository blogsRepo, IConfiguration config, IPubSubRepository pubsubRepo)
         {
             _config = config;
             _blogsRepo = blogsRepo;
+            _pubsubRepo = pubsubRepo;
         }
 
         public IActionResult Index()
@@ -55,6 +57,13 @@ namespace WebApplication1.Controllers
 
                 //save everything in db
                 _blogsRepo.AddBlog(b);
+
+                //publishmessage
+
+                string emailRecipient = HttpContext.User.Identity.Name; //the email of the current logged user
+                _pubsubRepo.PublishMessage(b, emailRecipient, "demo");
+
+
 
                 TempData["message"] = $"Blog {b.Url} was created successfully";
 
