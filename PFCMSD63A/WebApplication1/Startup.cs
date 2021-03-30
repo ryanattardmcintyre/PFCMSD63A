@@ -42,6 +42,8 @@ namespace WebApplication1
             services.AddScoped<IBlogsRepository, BlogsFirestoreRepository>();
             services.AddScoped<ICacheRepository, CacheRepository>();
             services.AddScoped<IPubSubRepository, PubSubRepository>();
+            services.AddScoped<ILogRepository, LogRepository>();
+
 
             //how you can register classes + interfaces which you have created with the IOC container
 

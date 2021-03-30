@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using WebApplication1.DataAccess.Interfaces;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
@@ -12,14 +13,28 @@ namespace WebApplication1.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly ILogRepository _cloudLogger;
+        public HomeController(ILogger<HomeController> logger, ILogRepository cloudLogger)
         {
+            _cloudLogger = cloudLogger;
             _logger = logger;
         }
 
         public IActionResult Index()
         {
+
+            _logger.LogInformation("log somethng locally");
+            
+            _cloudLogger.Log("User accessed Index page", Google.Cloud.Logging.Type.LogSeverity.Info);
+
+            try
+            {
+                throw new Exception("Error thrown on purpose");
+            }catch (Exception ex)
+            {
+                _cloudLogger.Log(ex.Message, Google.Cloud.Logging.Type.LogSeverity.Error);
+            }
+
             return View();
         }
 
