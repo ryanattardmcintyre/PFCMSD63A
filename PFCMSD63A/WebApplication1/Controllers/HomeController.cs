@@ -40,6 +40,7 @@ namespace WebApplication1.Controllers
 
         public IActionResult Privacy()
         {
+            throw new Exception("unhandled exception");
             return View();
         }
 

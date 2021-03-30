@@ -14,6 +14,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebApplication1.DataAccess.Interfaces;
 using WebApplication1.DataAccess.Repositories;
+using Google.Cloud.Diagnostics.AspNetCore;
+using Google.Cloud.SecretManager.V1;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace WebApplication1
 {
@@ -29,7 +33,12 @@ namespace WebApplication1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddGoogleExceptionLogging(options =>
+            {
+                options.ProjectId = "pfc2021";
+                options.ServiceName = "Pfc2021msd63a"; //random name where the logs will be categorized
+                options.Version = "0.01";
+            });
 
 
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -66,11 +75,14 @@ namespace WebApplication1
             services.AddAuthentication()
                   .AddGoogle(options =>
                   {
-                      IConfigurationSection googleAuthNSection =
-                          Configuration.GetSection("Authentication:Google");
+                      ////IConfigurationSection googleAuthNSection =
+                      ////    Configuration.GetSection("Authentication:Google");
 
-                      options.ClientId = googleAuthNSection["ClientId"];
-                      options.ClientSecret = googleAuthNSection["ClientSecret"];
+                      //options.ClientId = googleAuthNSection["ClientId"];
+                      //options.ClientSecret = googleAuthNSection["ClientSecret"];
+
+                      options.ClientId = GetPassword("Authentication:Google:ClientId");
+                      options.ClientSecret = GetPassword("Authentication:Google:ClientSecret");
                   });
 
         }
@@ -80,16 +92,20 @@ namespace WebApplication1
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage(); //this pages shows too much technical stuff which can help fix the errors
                 app.UseDatabaseErrorPage();
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Home/Error"); //error page showing less technical stuff to the end user
+
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+
+            app.UseGoogleExceptionLogging();
+
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -105,5 +121,27 @@ namespace WebApplication1
                 endpoints.MapRazorPages();
             });
         }
+
+
+        public string GetPassword(string key)
+        {
+            SecretManagerServiceClient client = SecretManagerServiceClient.Create();
+
+            // Build the resource name.
+            SecretVersionName secretVersionName = new SecretVersionName("pfc2021", "ApiClientId", "2");
+
+            // Call the API.
+            AccessSecretVersionResponse result = client.AccessSecretVersion(secretVersionName);
+
+            // Convert the payload to a string. Payloads are bytes by default.
+            String payload = result.Payload.Data.ToStringUtf8();
+
+            dynamic deserializedObject = JsonConvert.DeserializeObject(payload);
+            
+            JObject jObject = JObject.Parse(payload);
+            JToken jKey = jObject[key];
+            return jKey.ToString();
+        }
+
     }
 }
