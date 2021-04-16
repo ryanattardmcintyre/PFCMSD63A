@@ -17,9 +17,9 @@ namespace WebApplication1.Data
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseLazyLoadingProxies();
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //        => optionsBuilder
+        //            .UseLazyLoadingProxies();
                   
 
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +51,27 @@ namespace WebApplication1.Controllers
             request.Method = Method.POST;
             var response= client.Execute(request);
             return Content(response.StatusCode.ToString()); 
+        }
+
+        public IActionResult PullAndCallFunction()
+        {
+            string msgSerialized = _pubsubRepo.PullMessage(DataAccess.Repositories.Category.luxury);
+            if (msgSerialized == string.Empty) return Content("No message read");
+
+            dynamic myDeserializedData = JsonConvert.DeserializeObject(msgSerialized);
+            string email = myDeserializedData.Email;
+            string blogTitle = myDeserializedData.Blog.Title;
+            string blogUrl = myDeserializedData.Blog.Url;
+
+            //call function
+            //Solution no. 1
+
+            HttpClient client = new HttpClient();
+            Task<string> t=  client.GetStringAsync("https://us-central1-pfc2021.cloudfunctions.net/pfcmsd63ademo?email=" + email);
+            t.Wait();
+            var result = t.Result;
+
+            return Content(result);
         }
     }
 }

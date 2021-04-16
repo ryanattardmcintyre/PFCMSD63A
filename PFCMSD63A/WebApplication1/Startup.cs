@@ -26,6 +26,8 @@ namespace WebApplication1
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", @"C:\Users\Ryan\Downloads\pfc2021-420505dc0fd3.json");
         }
 
         public IConfiguration Configuration { get; }
@@ -40,10 +42,12 @@ namespace WebApplication1
                 options.Version = "0.01";
             });
 
-
+            var passwordForPosgres = GetPostgresPassword();
+            var connectionstringwithoutpassword = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    connectionstringwithoutpassword+passwordForPosgres+";"
+                   ));
 
 
             //these 3 lines here, they basically specify to asp.net core what the dependency injector should follow
@@ -72,6 +76,8 @@ namespace WebApplication1
             services.AddControllersWithViews();
             services.AddRazorPages();
 
+            var clientId = GetClientIdOrSecret("Authentication:Google:ClientId");
+            var clientSecret = GetClientIdOrSecret("Authentication:Google:ClientSecret");
             services.AddAuthentication()
                   .AddGoogle(options =>
                   {
@@ -81,8 +87,8 @@ namespace WebApplication1
                       //options.ClientId = googleAuthNSection["ClientId"];
                       //options.ClientSecret = googleAuthNSection["ClientSecret"];
 
-                      options.ClientId = GetPassword("Authentication:Google:ClientId");
-                      options.ClientSecret = GetPassword("Authentication:Google:ClientSecret");
+                      options.ClientId = clientId;
+                      options.ClientSecret = clientSecret;
                   });
 
         }
@@ -123,12 +129,12 @@ namespace WebApplication1
         }
 
 
-        public string GetPassword(string key)
+        public string GetClientIdOrSecret(string key)
         {
             SecretManagerServiceClient client = SecretManagerServiceClient.Create();
 
             // Build the resource name.
-            SecretVersionName secretVersionName = new SecretVersionName("pfc2021", "ApiClientId", "2");
+            SecretVersionName secretVersionName = new SecretVersionName("pfc2021", "ApiClientId", "7");
 
             // Call the API.
             AccessSecretVersionResponse result = client.AccessSecretVersion(secretVersionName);
@@ -136,12 +142,26 @@ namespace WebApplication1
             // Convert the payload to a string. Payloads are bytes by default.
             String payload = result.Payload.Data.ToStringUtf8();
 
-            dynamic deserializedObject = JsonConvert.DeserializeObject(payload);
+         //   dynamic deserializedObject = JsonConvert.DeserializeObject(payload);
             
             JObject jObject = JObject.Parse(payload);
             JToken jKey = jObject[key];
             return jKey.ToString();
         }
+        public string GetPostgresPassword()
+        {
+            SecretManagerServiceClient client = SecretManagerServiceClient.Create();
 
+            // Build the resource name.
+            SecretVersionName secretVersionName = new SecretVersionName("pfc2021", "PosgtresPassword", "2");
+
+            // Call the API.
+            AccessSecretVersionResponse result = client.AccessSecretVersion(secretVersionName);
+
+            // Convert the payload to a string. Payloads are bytes by default.
+            String payload = result.Payload.Data.ToStringUtf8();
+
+            return payload;
+        }
     }
 }
