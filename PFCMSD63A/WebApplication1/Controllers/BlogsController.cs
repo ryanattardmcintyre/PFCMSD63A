@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Cloud.Storage.V1;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using WebApplication1.DataAccess.Interfaces;
@@ -16,8 +18,12 @@ namespace WebApplication1.Controllers
         private readonly IBlogsRepository _blogsRepo;
         private readonly IConfiguration _config;
         private readonly IPubSubRepository _pubsubRepo;
-        public BlogsController(IBlogsRepository blogsRepo, IConfiguration config, IPubSubRepository pubsubRepo)
+        private readonly UserManager<IdentityUser> _userManager;
+        public BlogsController(IBlogsRepository blogsRepo, IConfiguration config, IPubSubRepository pubsubRepo,
+            UserManager<IdentityUser> userManager
+            )
         {
+            _userManager = userManager;
             _config = config;
             _blogsRepo = blogsRepo;
             _pubsubRepo = pubsubRepo;
@@ -35,8 +41,8 @@ namespace WebApplication1.Controllers
             return View();
         }
 
-        [HttpPost]
-        public IActionResult Create(IFormFile logo, Blog b)
+        [HttpPost][Authorize]
+        public async Task<IActionResult> Create(IFormFile logo, Blog b)
         {
             try
             {
@@ -63,6 +69,11 @@ namespace WebApplication1.Controllers
                 //publishmessage
 
                 string emailRecipient = HttpContext.User.Identity.Name; //the email of the current logged user
+
+                var user = await _userManager.FindByNameAsync(emailRecipient);
+                string id = user.Id.ToString();
+
+
                 _pubsubRepo.PublishMessage(b, emailRecipient, "demo");
 
 
