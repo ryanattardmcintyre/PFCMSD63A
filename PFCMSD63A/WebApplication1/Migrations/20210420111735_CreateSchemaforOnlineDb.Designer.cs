@@ -10,8 +10,8 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210305103522_addingtitlecolumnmigration")]
-    partial class addingtitlecolumnmigration
+    [Migration("20210420111735_CreateSchemaforOnlineDb")]
+    partial class CreateSchemaforOnlineDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -162,12 +162,10 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("character varying(128)")
-                        .HasMaxLength(128);
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("character varying(128)")
-                        .HasMaxLength(128);
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
@@ -204,12 +202,10 @@ namespace WebApplication1.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("character varying(128)")
-                        .HasMaxLength(128);
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("character varying(128)")
-                        .HasMaxLength(128);
+                        .HasColumnType("text");
 
                     b.Property<string>("Value")
                         .HasColumnType("text");

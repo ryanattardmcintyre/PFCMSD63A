@@ -23,11 +23,12 @@ namespace WebApplication1
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment host)
         {
             Configuration = configuration;
 
-            System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", @"C:\Users\Ryan\Downloads\pfc2021-420505dc0fd3.json");
+            System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", 
+              host.ContentRootPath +  @"\pfc2021-420505dc0fd3.json");
         }
 
         public IConfiguration Configuration { get; }
@@ -42,17 +43,17 @@ namespace WebApplication1
                 options.Version = "0.01";
             });
 
-            var passwordForPosgres = GetPostgresPassword();
+       //     var passwordForPosgres = GetPostgresPassword();
             var connectionstringwithoutpassword = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(
-                    connectionstringwithoutpassword+passwordForPosgres+";"
+                    connectionstringwithoutpassword 
                    ));
 
 
             //these 3 lines here, they basically specify to asp.net core what the dependency injector should follow
             //in order to create the required instances
-            services.AddScoped<IBlogsRepository, BlogsFirestoreRepository>();
+            services.AddScoped<IBlogsRepository, BlogsRepository>(); //BlogsRepository had code to connect with Postgres while BlogsFirestorerepository which connected with a different type of db
             services.AddScoped<ICacheRepository, CacheRepository>();
             services.AddScoped<IPubSubRepository, PubSubRepository>();
             services.AddScoped<ILogRepository, LogRepository>();
@@ -96,18 +97,18 @@ namespace WebApplication1
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage(); //this pages shows too much technical stuff which can help fix the errors
-                app.UseDatabaseErrorPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error"); //error page showing less technical stuff to the end user
+          if (env.IsDevelopment())
+          {
+                   app.UseDeveloperExceptionPage(); //this pages shows too much technical stuff which can help fix the errors
+                 app.UseDatabaseErrorPage();
+          }
+           else
+           {
+             app.UseExceptionHandler("/Home/Error"); //error page showing less technical stuff to the end user
 
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+               app.UseHsts();
+           }
             app.UseHttpsRedirection();
 
             app.UseGoogleExceptionLogging();

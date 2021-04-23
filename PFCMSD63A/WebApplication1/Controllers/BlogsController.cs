@@ -40,6 +40,8 @@ namespace WebApplication1.Controllers
         {
             try
             {
+                //Guid.NewGuid() //that will generate a new guid to represent an id
+
                 string bucketName = _config.GetSection("AppSettings").GetSection("BucketName").Value;
                 string uniqueFilename = Guid.NewGuid() + System.IO.Path.GetExtension(logo.FileName);
 

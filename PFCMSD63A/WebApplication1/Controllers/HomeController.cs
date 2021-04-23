@@ -27,13 +27,9 @@ namespace WebApplication1.Controllers
             
             _cloudLogger.Log("User accessed Index page", Google.Cloud.Logging.Type.LogSeverity.Info);
 
-            try
-            {
+           
                 throw new Exception("Error thrown on purpose");
-            }catch (Exception ex)
-            {
-                _cloudLogger.Log(ex.Message, Google.Cloud.Logging.Type.LogSeverity.Error);
-            }
+          
 
             return View();
         }
