@@ -25,7 +25,7 @@ namespace WebApplication1.DataAccess.Repositories
         }
 
 
-        public void PublishMessage(Blog b, string email, string classType)
+        public void PublishMessage(Blog b, string email, string category)
         {
             TopicName topicName = TopicName.FromProjectTopic(projectId, "pfc2021topicra"); //topic = queue
 
@@ -44,7 +44,7 @@ namespace WebApplication1.DataAccess.Repositories
                 // The attributes provide metadata in a string-to-string dictionary.
                 Attributes =
                         {
-                            { "category", classType }
+                            { "category", category }
                         }
             };
 
@@ -56,20 +56,20 @@ namespace WebApplication1.DataAccess.Repositories
 
         public string PullMessage(Category cat)
         {
-            //string subscriptionid;
-            //switch(cat)
-            //{
-            //    case Category.business:
-            //        subscriptionid = "pfc2021subscriptionra3";
-            //        break;
+             string subscriptionid = "pfc2021subscriptionra3";
+            switch (cat)
+            {
+                case Category.business:
+                    subscriptionid = "pfc2021subscriptionra3";
+                    break;
 
-            //    case Category.economy:
-            //        subscriptionid = "pfc2021subscriptionra4";
-            //        break;
-            //}
-            
+                case Category.economy:
+                    subscriptionid = "pfc2021subscriptionra4";
+                    break;
+            }
 
-            SubscriptionName subscriptionName = SubscriptionName.FromProjectSubscription(projectId, "pfc2021subscriptionra2");
+
+            SubscriptionName subscriptionName = SubscriptionName.FromProjectSubscription(projectId, subscriptionid);
             SubscriberServiceApiClient subscriberClient = SubscriberServiceApiClient.Create();
             int messageCount = 0;string text ="";
             try
