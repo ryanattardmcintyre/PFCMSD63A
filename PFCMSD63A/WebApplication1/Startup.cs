@@ -18,6 +18,7 @@ using Google.Cloud.Diagnostics.AspNetCore;
 using Google.Cloud.SecretManager.V1;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace WebApplication1
 {
@@ -28,7 +29,7 @@ namespace WebApplication1
             Configuration = configuration;
 
             System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", 
-              host.ContentRootPath +  @"\pfc2021-420505dc0fd3.json");
+              host.ContentRootPath +  @"/pfc2021-420505dc0fd3.json");
         }
 
         public IConfiguration Configuration { get; }
@@ -36,6 +37,14 @@ namespace WebApplication1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+                options.OnAppendCookie = cookieContext =>
+                    CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+                options.OnDeleteCookie = cookieContext =>
+                    CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+            });
             services.AddGoogleExceptionLogging(options =>
             {
                 options.ProjectId = "pfc2021";
@@ -97,18 +106,18 @@ namespace WebApplication1
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-          if (env.IsDevelopment())
-          {
+        //  if (env.IsDevelopment())
+         // {
                    app.UseDeveloperExceptionPage(); //this pages shows too much technical stuff which can help fix the errors
                  app.UseDatabaseErrorPage();
-          }
-           else
-           {
-             app.UseExceptionHandler("/Home/Error"); //error page showing less technical stuff to the end user
-
+        //  }
+         //  else
+         //  {
+         //    app.UseExceptionHandler("/Home/Error"); //error page showing less technical stuff to the end user
+ 
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-               app.UseHsts();
-           }
+         //      app.UseHsts();
+         //  }
             app.UseHttpsRedirection();
 
             app.UseGoogleExceptionLogging();
@@ -116,7 +125,7 @@ namespace WebApplication1
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -129,6 +138,18 @@ namespace WebApplication1
             });
         }
 
+        private void CheckSameSite(HttpContext httpContext, CookieOptions options)
+        {
+            if (options.SameSite == SameSiteMode.None)
+            {
+                var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
+                // TODO: Use your User Agent library of choice here.
+               
+                    // For .NET Core < 3.1 set SameSite = (SameSiteMode)(-1)
+                    options.SameSite = SameSiteMode.Unspecified;
+                
+            }
+        }
 
         public string GetClientIdOrSecret(string key)
         {

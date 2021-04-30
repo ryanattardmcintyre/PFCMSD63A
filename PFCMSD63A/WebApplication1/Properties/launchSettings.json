@@ -19,7 +19,6 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\Ryan\\Downloads\\pfc2021-420505dc0fd3.json",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
@@ -33,6 +32,5 @@
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     }
-
   }
 }
